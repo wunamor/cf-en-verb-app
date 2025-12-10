@@ -518,7 +518,14 @@
 				>
 					查询
 				</button>
+				<button
+					class="btn btn-outline"
+					onclick="showExportModal()"
+				>
+					导出（根据查询结果）
+				</button>
 			</div>
+
 			<div style="margin-top: 15px; font-size: 0.9rem; color: var(--text-sub); display: flex; gap: 20px">
 				<span>匹配模式：</span>
 				<label style="cursor: pointer; display: flex; align-items: center; gap: 5px">
@@ -854,6 +861,55 @@
 			class="toast"
 		>
 			操作成功
+		</div>
+
+		<div
+			id="exportModal"
+			class="modal-mask hidden"
+		>
+			<div class="modal">
+				<h3 class="modal-title">📤 导出数据</h3>
+				<div class="modal-body">
+					<label style="display: block; margin-bottom: 10px; color: var(--text-sub)">选择分隔符：</label>
+					<div class="flex">
+						<select
+							id="exportDelimSelect"
+							class="input"
+							onchange="toggleExportCustom()"
+						>
+							<option value=",">逗号 (CSV 默认)</option>
+							<option value="	">Tab (制表符)</option>
+							<option value="|">竖线 (|)</option>
+							<option value="custom">自定义</option>
+						</select>
+						<input
+							id="exportCustomDelim"
+							class="input hidden"
+							placeholder="输入符号"
+							style="width: 80px"
+						/>
+					</div>
+					<p style="margin-top: 15px; font-size: 0.85rem; color: var(--text-sub)">
+						* 导出将包含当前搜索条件下的所有结果。<br />
+						* 空字段将保留占位符 (例如: lie,lied,,备注)
+					</p>
+				</div>
+				<div class="modal-btns">
+					<button
+						class="btn btn-outline"
+						onclick="closeModal('exportModal')"
+					>
+						取消
+					</button>
+					<button
+						id="btnExecuteExport"
+						class="btn btn-primary"
+						onclick="executeExport()"
+					>
+						确认导出
+					</button>
+				</div>
+			</div>
 		</div>
 
 		<script>
@@ -1458,6 +1514,104 @@
 				t.innerText = msg
 				t.className = `toast show ${type || ''}`
 				setTimeout(() => (t.className = 'toast'), 2000)
+			}
+
+			// --- 7. 导出功能 ---
+
+			function showExportModal() {
+				document.getElementById('exportModal').classList.remove('hidden')
+				document.getElementById('exportDelimSelect').value = ',' // 默认逗号
+				toggleExportCustom()
+			}
+
+			function toggleExportCustom() {
+				const val = document.getElementById('exportDelimSelect').value
+				const customInput = document.getElementById('exportCustomDelim')
+				if (val === 'custom') {
+					customInput.classList.remove('hidden')
+					customInput.focus()
+				} else {
+					customInput.classList.add('hidden')
+				}
+			}
+
+			async function executeExport() {
+				const btn = document.getElementById('btnExecuteExport')
+				const originalText = btn.innerText
+				btn.disabled = true
+				btn.innerText = '正在生成...'
+
+				try {
+					// 1. 确定分隔符
+					const selectVal = document.getElementById('exportDelimSelect').value
+					let delim = selectVal
+					if (selectVal === 'custom') {
+						delim = document.getElementById('exportCustomDelim').value
+					}
+					if (!delim) {
+						showToast('请输入分隔符', 'error')
+						btn.disabled = false
+						btn.innerText = originalText
+						return
+					}
+
+					// 2. 获取数据
+					const q = document.getElementById('searchInput').value.trim()
+					const mode = document.querySelector('input[name="mode"]:checked').value
+
+					// --- 核心修改：添加 export=true 参数 ---
+					// 此时 limit 参数不再重要，因为后端看到 export=true 会忽略 limit 大小
+					const res = await fetch(`/api/search?q=${encodeURIComponent(q)}&page=1&limit=99999&mode=${mode}&export=true`)
+
+					const json = await res.json()
+					const data = json.data
+
+					if (!data || data.length === 0) {
+						showToast('没有数据可导出', 'error')
+						closeModal('exportModal')
+						return
+					}
+
+					// 3. 构建 CSV 内容
+					const rows = data.map((item) => {
+						return [
+							item.base_word || '',
+							item.past_tense || '',
+							item.past_participle || '',
+							item.definition || '',
+							item.note || '',
+						].join(delim)
+					})
+
+					// 添加 BOM 防止乱码
+					const csvContent = '\uFEFF' + rows.join('\n')
+
+					// 4. 触发下载
+					const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+					const url = URL.createObjectURL(blob)
+					const link = document.createElement('a')
+
+					const date = new Date().toISOString().slice(0, 10).replace(/-/g, '')
+					const ext = selectVal === '	' ? 'txt' : 'csv'
+					link.setAttribute('href', url)
+
+					// 根据是否搜索了内容来命名文件，方便用户区分
+					const fileNamePrefix = q ? `verbs_search_${q}` : `verbs_all`
+					link.setAttribute('download', `${fileNamePrefix}_${date}.${ext}`)
+
+					document.body.appendChild(link)
+					link.click()
+					document.body.removeChild(link)
+
+					showToast(`成功导出 ${data.length} 条数据`)
+					closeModal('exportModal')
+				} catch (e) {
+					console.error(e)
+					showToast('导出失败', 'error')
+				} finally {
+					btn.disabled = false
+					btn.innerText = originalText
+				}
 			}
 		</script>
 	</body>

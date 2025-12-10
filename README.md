@@ -80,7 +80,7 @@ database_id = "这里填入你的数据库ID"
 初始化数据表结构（创建 verbs 表）：
 
 ```Bash
-npx wrangler d1 execute verbs-db --command "CREATE TABLE IF NOT EXISTS verbs (id INTEGER PRIMARY KEY AUTOINCREMENT, base_word TEXT, past_tense TEXT, past_participle TEXT, definition TEXT, note TEXT);"
+npx wrangler d1 execute verbs-db --local --file=schema.sql
 ```
 
 ### 4. 设置本地开发密码
@@ -102,7 +102,15 @@ npx wrangler dev
 
 ## ☁️ 部署上线
 
-### 1. 设置生产环境密钥
+### 1. 设置初始化远程仓库数据
+
+初始化远程仓库数据
+
+```Bash
+npx wrangler d1 execute verb-db --remote --file=./schema.sql
+```
+
+### 2. 设置生产环境密钥
 
 在部署到 Cloudflare 之前，必须设置生产环境的管理员密码（Secret）：
 
@@ -111,7 +119,7 @@ npx wrangler secret put ADMIN_PASSWORD
 # 根据提示输入你的生产环境密码
 ```
 
-### 2. 部署项目
+### 3. 部署项目
 
 ```Bash
 npx wrangler deploy

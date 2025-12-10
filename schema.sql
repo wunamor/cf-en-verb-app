@@ -8,7 +8,7 @@ CREATE TABLE verbs (
   note TEXT
 );
 -- 初始化测试数据：Lie 的两种含义
-INSERT INTO verbs (base_word, past_tense, past_participle, definition, note) VALUES 
-('lie', 'lay', 'lain', '躺; 位于', '不规则'),
-('lie', 'lied', 'lied', '撒谎', '规则'),
-('go', 'went', 'gone', '去', NULL);
+-- INSERT INTO verbs (base_word, past_tense, past_participle, definition, note) VALUES 
+-- ('lie', 'lay', 'lain', '躺; 位于', '不规则'),
+-- ('lie', 'lied', 'lied', '撒谎', '规则'),
+-- ('go', 'went', 'gone', '去', NULL);
