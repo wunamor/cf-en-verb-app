@@ -1,3 +1,5 @@
+workers_dev = false
+
 name = "english-verb-worker"
 main = "src/index.js"
 compatibility_date = "2024-11-01" # 建议使用较新的日期
