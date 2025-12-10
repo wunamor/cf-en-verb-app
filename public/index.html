@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>英语动词助手 Pro</title>
+		<link
+			rel="icon"
+			href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%233b82f6%22/><path d=%22M28 38 L50 72 L72 38%22 fill=%22none%22 stroke=%22white%22 stroke-width=%2212%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/><circle cx=%2272%22 cy=%2228%22 r=%228%22 fill=%22%23a5f3fc%22/></svg>"
+		/>
+		<style>
+			:root {
+				--bg-body: #0f172a; /* 深蓝黑背景 */
+				--bg-card: #1e293b; /* 卡片背景 */
+				--bg-hover: #334155; /* 悬停高亮 */
+				--text-main: #f8fafc; /* 主文字 */
+				--text-sub: #94a3b8; /* 副文字 */
+				--primary: #3b82f6; /* 亮蓝色 */
+				--primary-hover: #2563eb;
+				--danger: #ef4444; /* 红色 */
+				--border: #334155; /* 边框色 */
+				--input-bg: #0f172a; /* 输入框背景 */
+			}
+
+			body {
+				font-family: 'Segoe UI', system-ui, sans-serif;
+				background: var(--bg-body);
+				color: var(--text-main);
+				padding: 20px;
+				max-width: 1000px;
+				margin: 0 auto;
+				line-height: 1.6;
+			}
+
+			/* --- 核心组件 --- */
+			.card {
+				background: var(--bg-card);
+				border: 1px solid var(--border);
+				border-radius: 10px;
+				padding: 20px;
+				margin-bottom: 20px;
+				box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+			}
+
+			.btn {
+				padding: 8px 16px;
+				border-radius: 6px;
+				border: 1px solid transparent;
+				cursor: pointer;
+				font-size: 0.9rem;
+				transition: 0.2s;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				font-weight: 500;
+				white-space: nowrap;
+			}
+			.btn-primary {
+				background: var(--primary);
+				color: white;
+			}
+			.btn-primary:hover {
+				background: var(--primary-hover);
+			}
+			.btn-danger {
+				background: rgba(239, 68, 68, 0.15);
+				color: #fca5a5;
+				border: 1px solid var(--danger);
+			}
+			.btn-danger:hover {
+				background: var(--danger);
+				color: white;
+			}
+			.btn-outline {
+				background: transparent;
+				border: 1px solid var(--border);
+				color: var(--text-sub);
+			}
+			.btn-outline:hover {
+				border-color: var(--text-main);
+				color: var(--text-main);
+				background: var(--bg-hover);
+			}
+			.btn-sm {
+				padding: 4px 10px;
+				font-size: 0.8rem;
+				margin-left: 5px;
+			}
+			.btn:disabled {
+				opacity: 0.6;
+				cursor: not-allowed;
+			}
+
+			.input,
+			select {
+				background: var(--input-bg);
+				border: 1px solid var(--border);
+				color: white;
+				padding: 10px;
+				border-radius: 6px;
+				width: 100%;
+				box-sizing: border-box;
+				outline: none;
+				transition: border-color 0.2s;
+			}
+			.input:focus {
+				border-color: var(--primary);
+			}
+			select {
+				cursor: pointer;
+			}
+
+			/* 通用 Flex 布局 (PC默认横向) */
+			.flex {
+				display: flex;
+				gap: 10px;
+				align-items: center;
+				flex-wrap: wrap;
+			}
+			.hidden {
+				display: none !important;
+			}
+			.text-primary {
+				color: var(--primary);
+				font-weight: 600;
+			}
+
+			/* --- 顶部与搜索 --- */
+			/* 核心修复：justify-content: space-between 确保左右对齐 */
+			.header {
+				display: flex;
+				justify-content: space-between;
+				margin-bottom: 20px;
+				align-items: center;
+			}
+			.search-area {
+				display: flex;
+				gap: 10px;
+				width: 100%;
+			}
+
+			/* --- 表格样式 --- */
+			table {
+				width: 100%;
+				border-collapse: collapse;
+				margin-top: 5px;
+			}
+			th {
+				text-align: left;
+				background: #0f172a;
+				padding: 12px;
+				color: var(--text-sub);
+				font-size: 0.85rem;
+				border-bottom: 2px solid var(--border);
+				font-weight: 600;
+			}
+			td {
+				padding: 14px 12px;
+				border-bottom: 1px solid var(--border);
+				font-size: 0.95rem;
+				color: #e2e8f0;
+			}
+			tr:hover td {
+				background: var(--bg-hover);
+			}
+
+			input[type='checkbox'] {
+				accent-color: var(--primary);
+				width: 16px;
+				height: 16px;
+				cursor: pointer;
+			}
+
+			/* --- 分页栏 (核心修复：默认横向) --- */
+			.footer {
+				display: flex;
+				justify-content: space-between; /* 左右分布 */
+				align-items: center;
+				margin-top: 20px;
+				padding-top: 15px;
+				border-top: 1px solid var(--border);
+			}
+			.page-ctrl {
+				display: flex;
+				gap: 8px;
+				align-items: center;
+			}
+
+			.page-btn {
+				min-width: 32px;
+				height: 32px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				border: 1px solid var(--border);
+				border-radius: 4px;
+				cursor: pointer;
+				color: var(--text-sub);
+				background: var(--bg-body);
+				user-select: none;
+				font-size: 0.9rem;
+				transition: all 0.2s;
+			}
+			.page-btn:hover:not(.active) {
+				border-color: var(--text-main);
+				color: var(--text-main);
+			}
+
+			/* 核心修复：激活状态样式必须足够强 */
+			.page-btn.active {
+				background: var(--primary) !important;
+				border-color: var(--primary) !important;
+				color: white !important;
+				font-weight: bold;
+			}
+			.page-input {
+				width: 45px;
+				text-align: center;
+				padding: 4px;
+				height: 32px;
+				font-size: 0.9rem;
+			}
+
+			/* --- 导入面板 --- */
+			.import-box {
+				background: #0f172a;
+				padding: 15px;
+				border-radius: 8px;
+				border: 1px solid var(--border);
+			}
+			/* PC端导入行默认横向 */
+			.import-row {
+				display: flex;
+				gap: 15px;
+				margin-bottom: 15px;
+			}
+			.import-col {
+				flex: 1;
+				min-width: 200px;
+			}
+
+			.mapping-row {
+				display: grid;
+				grid-template-columns: 100px 1fr;
+				gap: 15px;
+				align-items: center;
+				margin-bottom: 10px;
+			}
+			.mapping-label {
+				text-align: right;
+				color: var(--text-sub);
+				font-size: 0.9rem;
+			}
+
+			/* --- 弹窗 (Modal) --- */
+			.modal-mask {
+				position: fixed;
+				inset: 0;
+				background: rgba(0, 0, 0, 0.6);
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				z-index: 999;
+				backdrop-filter: blur(3px);
+			}
+			.modal {
+				background: var(--bg-card);
+				width: 450px;
+				padding: 25px;
+				border-radius: 12px;
+				border: 1px solid var(--border);
+				box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+				animation: popIn 0.2s ease-out;
+			}
+			@keyframes popIn {
+				from {
+					opacity: 0;
+					transform: scale(0.95);
+				}
+				to {
+					opacity: 1;
+					transform: scale(1);
+				}
+			}
+
+			.modal-title {
+				margin: 0 0 10px 0;
+				font-size: 1.1rem;
+				color: var(--text-main);
+			}
+			.modal-body {
+				color: var(--text-sub);
+				margin-bottom: 25px;
+				font-size: 0.95rem;
+				line-height: 1.6;
+			}
+			.modal-btns {
+				display: flex;
+				justify-content: flex-end;
+				gap: 10px;
+			}
+
+			/* --- Toast --- */
+			.toast {
+				position: fixed;
+				top: 20px;
+				right: 20px;
+				background: #10b981;
+				color: white;
+				padding: 12px 24px;
+				border-radius: 8px;
+				transform: translateY(-100px);
+				transition: 0.3s;
+				z-index: 1000;
+				box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+			}
+			.toast.show {
+				transform: translateY(0);
+			}
+			.toast.error {
+				background: var(--danger);
+			}
+
+			/* 进度条 */
+			.progress-track {
+				background: var(--bg-body);
+				border: 1px solid var(--border);
+				height: 10px;
+				border-radius: 5px;
+				overflow: hidden;
+				margin: 10px 0;
+			}
+			.progress-fill {
+				background: var(--primary);
+				height: 100%;
+				width: 0%;
+				transition: width 0.3s;
+			}
+
+			/* =========================================
+       移动端适配 (Max-Width: 768px)
+       所有的竖排、堆叠逻辑只在这里生效
+       ========================================= */
+			@media (max-width: 768px) {
+				body {
+					padding: 10px;
+				}
+
+				/* 1. 顶部 Header 保持左右分布 (核心修改) */
+				/* 移除 flex-direction: column，继承 PC 的 row */
+				.header {
+					gap: 10px;
+					/* 防止小屏幕文字拥挤，适当缩小标题 */
+				}
+				.header h2 {
+					font-size: 1.2rem;
+				}
+				.header h2 span {
+					display: none;
+				} /* 手机上隐藏 "Pro" 标签以节省空间 */
+
+				/* 2. 搜索框竖排 */
+				.search-area {
+					flex-direction: column;
+				}
+				.search-area button {
+					width: 100%;
+				}
+
+				/* 3. 批量导入竖排 */
+				.import-row {
+					flex-direction: column;
+					gap: 10px;
+				}
+
+				/* 4. 分页栏竖排转居中 */
+				.footer {
+					flex-direction: column;
+					gap: 15px;
+				}
+				.page-ctrl {
+					flex-wrap: wrap;
+					justify-content: center;
+					width: 100%;
+				}
+
+				/* 5. 表格变卡片 */
+				thead {
+					display: none;
+				}
+				tr {
+					display: block;
+					background: var(--bg-card);
+					border: 1px solid var(--border);
+					margin-bottom: 15px;
+					border-radius: 8px;
+					padding: 10px;
+				}
+				td {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					padding: 8px 0;
+					border-bottom: 1px solid #33415540;
+					text-align: right;
+				}
+				td:last-child {
+					border-bottom: none;
+				}
+				td::before {
+					content: attr(data-label);
+					color: var(--text-sub);
+					font-size: 0.85rem;
+					font-weight: 600;
+					text-align: left;
+					margin-right: 15px;
+				}
+
+				/* 6. 弹窗适配 */
+				.modal {
+					width: 90%;
+					padding: 20px;
+				}
+				.modal-btns {
+					flex-direction: column;
+				}
+				.modal-btns button {
+					width: 100%;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="header">
+			<h2 style="margin: 0; display: flex; align-items: center; gap: 12px; font-weight: 700">
+				<svg
+					width="36"
+					height="36"
+					viewBox="0 0 100 100"
+					fill="none"
+					xmlns="http://www.w3.org/2000/svg"
+				>
+					<rect
+						width="100"
+						height="100"
+						rx="24"
+						fill="#3b82f6"
+					/>
+					<path
+						d="M28 38 L50 72 L72 38"
+						stroke="white"
+						stroke-width="12"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					/>
+					<circle
+						cx="72"
+						cy="28"
+						r="8"
+						fill="#a5f3fc"
+					/>
+				</svg>
+				<span
+					style="
+						background: linear-gradient(to right, #fff, #94a3b8);
+						-webkit-background-clip: text;
+						color: transparent;
+					"
+				>
+					动词管理器
+					<span
+						style="
+							font-size: 0.6em;
+							color: #3b82f6;
+							border: 1px solid #3b82f6;
+							padding: 2px 6px;
+							border-radius: 4px;
+							vertical-align: middle;
+							margin-left: 5px;
+						"
+						>Pro</span
+					>
+				</span>
+			</h2>
+			<div>
+				<button
+					id="loginBtn"
+					class="btn btn-primary"
+					onclick="showLogin()"
+				>
+					管理员登录
+				</button>
+				<button
+					id="logoutBtn"
+					class="btn btn-outline hidden"
+					onclick="confirmLogout()"
+				>
+					退出登录
+				</button>
+			</div>
+		</div>
+
+		<div class="card">
+			<div class="search-area">
+				<input
+					id="searchInput"
+					class="input"
+					style="flex: 1"
+					placeholder="输入单词 (支持模糊搜索)..."
+					onkeydown="if(event.key==='Enter') resetSearch()"
+				/>
+				<button
+					class="btn btn-primary"
+					onclick="resetSearch()"
+				>
+					查询
+				</button>
+			</div>
+			<div style="margin-top: 15px; font-size: 0.9rem; color: var(--text-sub); display: flex; gap: 20px">
+				<span>匹配模式：</span>
+				<label style="cursor: pointer; display: flex; align-items: center; gap: 5px">
+					<input
+						type="radio"
+						name="mode"
+						value="fuzzy"
+						checked
+						onchange="resetSearch()"
+					/>
+					模糊匹配
+				</label>
+				<label style="cursor: pointer; display: flex; align-items: center; gap: 5px">
+					<input
+						type="radio"
+						name="mode"
+						value="exact"
+						onchange="resetSearch()"
+					/>
+					精确匹配
+				</label>
+			</div>
+		</div>
+
+		<div
+			id="resultArea"
+			class="hidden"
+		>
+			<div
+				class="card"
+				style="padding: 0; overflow: hidden"
+			>
+				<div id="tableContainer"></div>
+
+				<div
+					class="footer"
+					style="padding: 15px"
+				>
+					<div class="flex">
+						<span style="color: var(--text-sub); font-size: 0.9rem">每页显示:</span>
+						<select
+							id="pageSize"
+							style="width: 70px; padding: 4px"
+							class="input"
+							onchange="resetSearch()"
+						>
+							<option value="5">5</option>
+							<option
+								value="10"
+								selected
+							>
+								10
+							</option>
+							<option value="20">20</option>
+							<option value="50">50</option>
+						</select>
+					</div>
+
+					<div
+						class="page-ctrl"
+						id="pagination"
+					></div>
+				</div>
+			</div>
+		</div>
+
+		<div
+			id="adminPanel"
+			class="hidden"
+		>
+			<div
+				class="flex"
+				style="margin-bottom: 15px"
+			>
+				<button
+					class="btn btn-primary"
+					onclick="switchTab('single')"
+				>
+					单条添加
+				</button>
+				<button
+					class="btn btn-outline"
+					onclick="switchTab('batch')"
+				>
+					批量导入
+				</button>
+			</div>
+
+			<div
+				id="tab-single"
+				class="card"
+			>
+				<h3 style="margin-top: 0">✏️ 编辑/添加</h3>
+				<input
+					type="hidden"
+					id="editId"
+				/>
+
+				<div
+					class="flex"
+					style="margin-bottom: 15px"
+				>
+					<input
+						id="base"
+						class="input"
+						placeholder="原形 (Base)"
+					/>
+					<input
+						id="past"
+						class="input"
+						placeholder="过去式 (Past)"
+					/>
+				</div>
+
+				<div
+					class="flex"
+					style="margin-bottom: 15px"
+				>
+					<input
+						id="part"
+						class="input"
+						placeholder="过去分词 (Participle)"
+					/>
+					<input
+						id="def"
+						class="input"
+						placeholder="中文释义"
+					/>
+				</div>
+
+				<input
+					id="note"
+					class="input"
+					placeholder="备注"
+					style="margin-bottom: 15px"
+				/>
+
+				<div class="flex">
+					<button
+						class="btn btn-primary"
+						onclick="saveSingle()"
+					>
+						提交保存
+					</button>
+					<button
+						id="cancelEdit"
+						class="btn btn-outline hidden"
+						onclick="resetForm()"
+					>
+						取消编辑
+					</button>
+				</div>
+			</div>
+			<div
+				id="tab-batch"
+				class="card hidden"
+			>
+				<h3 style="margin-top: 0">📂 文件批量导入</h3>
+
+				<div class="import-box">
+					<div class="import-row">
+						<div class="import-col">
+							<label style="color: var(--text-sub); font-size: 0.8rem; display: block; margin-bottom: 5px"
+								>1. 选择文件 (.txt/.csv)</label
+							>
+							<input
+								type="file"
+								id="fileInput"
+								class="input"
+								style="padding: 8px"
+								accept=".txt,.csv"
+								onchange="parseFile()"
+							/>
+						</div>
+						<div class="import-col">
+							<label style="color: var(--text-sub); font-size: 0.8rem; display: block; margin-bottom: 5px"
+								>2. 分隔符</label
+							>
+							<div
+								class="flex"
+								style="flex-wrap: nowrap"
+							>
+								<select
+									id="delimSelect"
+									class="input"
+									onchange="handleDelim()"
+								>
+									<option value="custom">自定义</option>
+									<option value=",">逗号 (,)</option>
+									<option value="	">Tab (制表符)</option>
+									<option value="|">竖线 (|)</option>
+								</select>
+								<input
+									id="customDelim"
+									class="input"
+									placeholder="符号"
+									value=","
+									style="width: 80px; text-align: center"
+									oninput="parseFile()"
+								/>
+							</div>
+						</div>
+					</div>
+
+					<div style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 10px">
+						<label style="color: var(--text-sub); font-size: 0.9rem">遇到重复时：</label>
+						<label style="margin-left: 10px; cursor: pointer"
+							><input
+								type="radio"
+								name="importMode"
+								value="skip"
+								checked
+							/>
+							跳过</label
+						>
+						<label style="margin-left: 10px; cursor: pointer"
+							><input
+								type="radio"
+								name="importMode"
+								value="update"
+							/>
+							覆盖</label
+						>
+					</div>
+				</div>
+
+				<div
+					id="mappingArea"
+					class="hidden"
+					style="margin-top: 20px"
+				>
+					<h4 style="margin-bottom: 15px; color: var(--text-sub)">3. 字段匹配预览</h4>
+					<div id="mappingContainer"></div>
+
+					<div style="margin-top: 20px">
+						<div
+							id="importProgressBar"
+							class="progress-track hidden"
+							style="margin-bottom: 10px"
+						>
+							<div
+								id="importProgressFill"
+								class="progress-fill"
+							></div>
+						</div>
+
+						<div style="text-align: right">
+							<span
+								id="importStatus"
+								style="margin-right: 10px; color: var(--text-sub); font-size: 0.9rem"
+							></span>
+							<button
+								id="btnStartImport"
+								class="btn btn-primary"
+								onclick="executeImport()"
+							>
+								开始导入
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div
+			id="loginModal"
+			class="modal-mask hidden"
+		>
+			<div class="modal">
+				<h3 class="modal-title">🔐 管理员验证</h3>
+				<div class="modal-body">
+					<input
+						type="password"
+						id="modalPass"
+						class="input"
+						placeholder="请输入管理员密码"
+						onkeydown="if(event.key==='Enter') confirmLogin()"
+					/>
+				</div>
+				<div class="modal-btns">
+					<button
+						class="btn btn-outline"
+						onclick="closeModal('loginModal')"
+					>
+						取消
+					</button>
+					<button
+						class="btn btn-primary"
+						onclick="confirmLogin()"
+					>
+						确定
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<div
+			id="confirmModal"
+			class="modal-mask hidden"
+		>
+			<div class="modal">
+				<h3
+					class="modal-title"
+					id="confirmTitle"
+				>
+					确认操作
+				</h3>
+				<div
+					class="modal-body"
+					id="confirmMsg"
+				>
+					确定要执行此操作吗？
+				</div>
+				<div class="modal-btns">
+					<button
+						class="btn btn-outline"
+						onclick="closeModal('confirmModal')"
+					>
+						取消
+					</button>
+					<button
+						class="btn btn-danger"
+						id="confirmActionBtn"
+					>
+						确定
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<div
+			id="toast"
+			class="toast"
+		>
+			操作成功
+		</div>
+
+		<script>
+			// --- 核心变量 ---
+			let currentPage = 1
+			let totalPages = 1
+			let selectedIds = new Set()
+			let csvData = []
+
+			window.onload = () => {
+				// 1. 恢复管理员状态
+				if (localStorage.getItem('adminKey')) toggleAdmin(true)
+
+				// 2. 核心优化：手机端默认每页显示 5 条
+				if (window.innerWidth < 768) {
+					const limitSelect = document.getElementById('pageSize')
+					if (limitSelect) {
+						limitSelect.value = '5' // 强制选中 5
+					}
+				}
+
+				// 3. 执行首次搜索
+				doSearch()
+			}
+
+			// --- 1. 搜索与渲染列表 ---
+			function resetSearch() {
+				currentPage = 1
+				selectedIds.clear()
+				doSearch()
+			}
+
+			async function doSearch() {
+				const q = document.getElementById('searchInput').value.trim()
+				const limit = document.getElementById('pageSize').value
+				const mode = document.querySelector('input[name="mode"]:checked').value
+
+				document.getElementById('resultArea').classList.remove('hidden')
+				const container = document.getElementById('tableContainer')
+
+				try {
+					const res = await fetch(
+						`/api/search?q=${encodeURIComponent(q)}&page=${currentPage}&limit=${limit}&mode=${mode}`
+					)
+					const json = await res.json()
+
+					totalPages = Math.ceil((json.total || 0) / limit)
+					renderTable(json.data)
+					renderPagination(totalPages)
+				} catch (e) {
+					console.error(e)
+				}
+			}
+
+			function renderTable(data) {
+				const div = document.getElementById('tableContainer')
+				if (!data || data.length === 0) {
+					div.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-sub)">暂无数据</div>'
+					return
+				}
+				const isAdmin = !!localStorage.getItem('adminKey')
+
+				// PC端表头 (移动端 CSS 会隐藏它)
+				let th = `<thead><tr>`
+				if (isAdmin) th += `<th style="width:40px"><input type="checkbox" id="selectAll" onclick="toggleAll()"></th>`
+				th += `<th>原形</th><th>过去式</th><th>过去分词</th><th>释义</th><th>备注</th>`
+				if (isAdmin) {
+					const delBtn =
+						selectedIds.size > 0
+							? `<button class="btn btn-danger" style="padding:2px 8px; font-size:0.8rem" onclick="batchDeleteClick()">删 (${selectedIds.size})</button>`
+							: `<span>操作</span>`
+					th += `<th style="width:140px; text-align:right">${delBtn}</th>`
+				}
+				th += `</tr></thead>`
+
+				// 构建内容
+				let rows = data
+					.map((item) => {
+						const json = JSON.stringify(item).replace(/"/g, '&quot;')
+						const checked = selectedIds.has(item.id) ? 'checked' : ''
+
+						// 注意：这里添加了 data-label 属性，用于移动端显示
+						let tr = `<tr>`
+						if (isAdmin)
+							tr += `<td data-label="选择"><input type="checkbox" class="row-cb" value="${item.id}" ${checked} onclick="toggleRow(${item.id})"></td>`
+						tr += `
+            <td data-label="原形" class="text-primary" style="font-weight:bold">${item.base_word}</td>
+            <td data-label="过去式">${item.past_tense}</td>
+            <td data-label="过去分词">${item.past_participle}</td>
+            <td data-label="释义">${item.definition || ''}</td>
+            <td data-label="备注" style="color:var(--text-sub); font-size:0.85rem">${item.note || ''}</td>
+        `
+						if (isAdmin)
+							tr += `
+            <td data-label="操作" style="text-align:right">
+                <button class="btn btn-outline btn-sm" onclick="editItem(${json})">改</button>
+                <button class="btn btn-danger btn-sm" style="margin-left:5px" onclick="delItemClick(${item.id})">删</button>
+            </td>
+        `
+						tr += `</tr>`
+						return tr
+					})
+					.join('')
+
+				div.innerHTML = `<table>${th}<tbody>${rows}</tbody></table>`
+
+				// 刷新全选框状态
+				if (isAdmin && document.getElementById('selectAll')) {
+					const allRows = document.querySelectorAll('.row-cb')
+					if (allRows.length > 0 && Array.from(allRows).every((cb) => cb.checked)) {
+						document.getElementById('selectAll').checked = true
+					}
+				}
+			}
+			// --- 2. 批量操作逻辑 ---
+			function toggleAll() {
+				const master = document.getElementById('selectAll')
+				document.querySelectorAll('.row-cb').forEach((cb) => {
+					cb.checked = master.checked
+					const id = parseInt(cb.value)
+					if (master.checked) selectedIds.add(id)
+					else selectedIds.delete(id)
+				})
+				// 仅刷新 UI 不重新请求
+				doSearch()
+			}
+
+			function toggleRow(id) {
+				if (selectedIds.has(id)) selectedIds.delete(id)
+				else selectedIds.add(id)
+				doSearch()
+			}
+
+			// 核心修复：这里使用 showConfirmModal 而不是 confirm()
+			function batchDeleteClick() {
+				showConfirmModal(`确定要删除选中的 ${selectedIds.size} 个单词吗？`, async () => {
+					const ids = Array.from(selectedIds)
+					await fetch('/api/batch_delete', {
+						method: 'POST',
+						headers: { 'Admin-Key': localStorage.getItem('adminKey') },
+						body: JSON.stringify({ ids }),
+					})
+					showToast('批量删除成功')
+					selectedIds.clear()
+					doSearch()
+				})
+			}
+
+			// 核心修复：这里使用 showConfirmModal 而不是 confirm()
+			function delItemClick(id) {
+				showConfirmModal('确定删除这个单词吗？', async () => {
+					await fetch('/api/delete', {
+						method: 'POST',
+						headers: { 'Admin-Key': localStorage.getItem('adminKey') },
+						body: JSON.stringify({ id }),
+					})
+					showToast('已删除')
+					doSearch()
+				})
+			}
+
+			// --- 3. 弹窗控制 (关键) ---
+			// 修改后的弹窗函数，支持传入 HTML 内容
+			function showConfirmModal(msg, actionCallback, isHtml = false) {
+				const modal = document.getElementById('confirmModal')
+				const msgDiv = document.getElementById('confirmMsg')
+
+				// 支持 HTML 表格预览
+				if (isHtml) {
+					msgDiv.innerHTML = msg
+				} else {
+					msgDiv.innerText = msg
+				}
+
+				modal.classList.remove('hidden')
+
+				const btn = document.getElementById('confirmActionBtn')
+				const newBtn = btn.cloneNode(true) // 清除旧事件
+				btn.parentNode.replaceChild(newBtn, btn)
+
+				newBtn.addEventListener('click', () => {
+					actionCallback()
+					closeModal('confirmModal')
+				})
+			}
+
+			function closeModal(id) {
+				document.getElementById(id).classList.add('hidden')
+			}
+
+			// --- 4. 分页逻辑 (图二 方块风格) ---
+			// 替换原有的 renderPagination 函数
+			// 替换原有的 renderPagination 函数
+			function renderPagination(total) {
+				const el = document.getElementById('pagination')
+				let html = ''
+
+				// 强制转换为数字，解决样式不生效问题
+				const cur = parseInt(currentPage) || 1
+				const totalPg = parseInt(total) || 1
+
+				html += `<div class="page-btn" onclick="changePage(${cur - 1})">‹</div>`
+
+				let start = Math.max(1, cur - 2)
+				let end = Math.min(totalPg, cur + 2)
+
+				if (end - start < 4) {
+					if (start === 1) end = Math.min(totalPg, start + 4)
+					else if (end === totalPg) start = Math.max(1, end - 4)
+				}
+
+				if (start > 1) {
+					// 注意这里判断 active
+					html += `<div class="page-btn ${1 === cur ? 'active' : ''}" onclick="changePage(1)">1</div>`
+					if (start > 2)
+						html += `<span style="color:var(--text-sub); padding:0 5px; display:flex; align-items:flex-end;">...</span>`
+				}
+
+				for (let i = start; i <= end; i++) {
+					// 核心修复：确保 i 和 cur 都是数字，才能匹配成功
+					const isActive = i === cur ? 'active' : ''
+					html += `<div class="page-btn ${isActive}" onclick="changePage(${i})">${i}</div>`
+				}
+
+				if (end < totalPg) {
+					if (end < totalPg - 1)
+						html += `<span style="color:var(--text-sub); padding:0 5px; display:flex; align-items:flex-end;">...</span>`
+					html += `<div class="page-btn ${
+						totalPg === cur ? 'active' : ''
+					}" onclick="changePage(${totalPg})">${totalPg}</div>`
+				}
+
+				html += `<div class="page-btn" onclick="changePage(${cur + 1})">›</div>`
+				// PC端显示 Go 输入框
+				html += `<input class="input page-input" id="jumpInput" placeholder="Go" onkeydown="if(event.key==='Enter') jumpPage()">`
+
+				el.innerHTML = html
+			}
+
+			function changePage(p) {
+				if (p < 1 || p > totalPages) return
+				currentPage = p
+				doSearch()
+			}
+			function jumpPage() {
+				const p = parseInt(document.getElementById('jumpInput').value)
+				if (p) changePage(p)
+			}
+
+			// --- 5. 导入逻辑 (文件清空修复) ---
+			function handleDelim() {
+				const val = document.getElementById('delimSelect').value
+				const custom = document.getElementById('customDelim')
+				if (val === 'custom') {
+					custom.style.display = 'block'
+					custom.focus()
+				} else {
+					custom.value = val
+				}
+				parseFile()
+			}
+
+			function parseFile() {
+				const fileInput = document.getElementById('fileInput')
+				const file = fileInput.files[0]
+
+				// 核心修复：如果用户清空了文件选择，立即重置界面
+				if (!file) {
+					csvData = []
+					document.getElementById('mappingArea').classList.add('hidden')
+					document.getElementById('mappingContainer').innerHTML = ''
+					return
+				}
+
+				const delim = document.getElementById('customDelim').value
+				if (!delim) return
+
+				const reader = new FileReader()
+				reader.onload = (e) => {
+					const text = e.target.result
+					const lines = text.split(/\r?\n/).filter((l) => l.trim())
+					csvData = lines.map((l) => l.split(delim).map((c) => c.trim()))
+					if (csvData.length > 0) renderMapping(csvData[0])
+				}
+				reader.readAsText(file)
+			}
+
+			function renderMapping(previewRow) {
+				document.getElementById('mappingArea').classList.remove('hidden')
+				const container = document.getElementById('mappingContainer')
+				container.innerHTML = ''
+
+				const fields = [
+					{ k: 'base', t: '单词原形 (Base)' },
+					{ k: 'past', t: '过去式 (Past)' },
+					{ k: 'part', t: '过去分词' },
+					{ k: 'def', t: '中文释义' },
+					{ k: 'note', t: '备注' },
+				]
+
+				let opts = `<option value="">(忽略此字段)</option>`
+				previewRow.forEach((v, i) => {
+					opts += `<option value="${i}">列 ${i + 1}: ${v.substring(0, 15)}...</option>`
+				})
+
+				fields.forEach((f, idx) => {
+					const selected = idx < previewRow.length ? `value="${idx}" selected` : ''
+					const html = `
+                    <div class="mapping-row">
+                        <div class="mapping-label">${f.t}</div>
+                        <select class="input map-select" data-key="${f.k}">
+                            ${opts.replace(`value="${idx}"`, selected)}
+                        </select>
+                    </div>
+                `
+					container.innerHTML += html
+				})
+			}
+
+			async function executeImport() {
+				const selects = document.querySelectorAll('.map-select')
+				const map = {}
+				selects.forEach((s) => {
+					if (s.value) map[s.dataset.key] = s.value
+				})
+
+				if (!map.base) return showToast('必须映射原形字段', 'error')
+
+				const mode = document.querySelector('input[name="importMode"]:checked').value
+				// 过滤并构建 payload
+				const payload = csvData
+					.map((r) => ({
+						base: r[map.base] || '',
+						past: r[map.past] || '',
+						part: r[map.part] || '',
+						def: r[map.def] || '',
+						note: r[map.note] || '',
+					}))
+					.filter((i) => i.base)
+
+				// 获取 DOM 元素
+				const btn = document.getElementById('btnStartImport')
+				const status = document.getElementById('importStatus')
+				const pBar = document.getElementById('importProgressBar')
+				const pFill = document.getElementById('importProgressFill')
+
+				// --- 1. 锁定界面与初始化 ---
+				btn.disabled = true // 禁用按钮
+				btn.style.opacity = '0.6'
+				btn.innerText = '导入中...'
+
+				pBar.classList.remove('hidden') // 显示进度条
+				pFill.style.width = '0%'
+				status.innerText = '准备开始...'
+
+				const BATCH = 50
+				let processedCount = 0
+				let hasError = false
+
+				try {
+					for (let i = 0; i < payload.length; i += BATCH) {
+						const chunk = payload.slice(i, i + BATCH)
+
+						await fetch('/api/batch_add', {
+							method: 'POST',
+							headers: { 'Admin-Key': localStorage.getItem('adminKey') },
+							body: JSON.stringify({ rows: chunk, mode }),
+						})
+
+						// --- 2. 更新进度 ---
+						processedCount += chunk.length
+						const percent = Math.min(100, Math.round((processedCount / payload.length) * 100))
+
+						// 更新 UI
+						pFill.style.width = percent + '%'
+						status.innerText = `正在处理: ${percent}% (${processedCount}/${payload.length})`
+					}
+
+					status.innerText = `完成！共 ${payload.length} 条`
+					showToast('导入成功')
+
+					// 成功后延迟刷新
+					setTimeout(() => {
+						resetSearch()
+						document.getElementById('fileInput').value = ''
+						parseFile() // 重置映射区
+						// 隐藏进度条
+						pBar.classList.add('hidden')
+						status.innerText = ''
+					}, 1500)
+				} catch (e) {
+					console.error(e)
+					status.innerText = '上传中断，请检查网络'
+					showToast('导入失败', 'error')
+					hasError = true
+				} finally {
+					// --- 3. 恢复按钮状态 ---
+					btn.disabled = false
+					btn.style.opacity = '1'
+					btn.innerText = '开始导入'
+				}
+			}
+
+			// --- 6. 通用管理 ---
+			function switchTab(t) {
+				document.getElementById('tab-single').classList.toggle('hidden', t !== 'single')
+				document.getElementById('tab-batch').classList.toggle('hidden', t !== 'batch')
+			}
+			function editItem(item) {
+				document.getElementById('editId').value = item.id
+				document.getElementById('base').value = item.base_word
+				document.getElementById('past').value = item.past_tense
+				document.getElementById('part').value = item.past_participle
+				document.getElementById('def').value = item.definition
+				document.getElementById('note').value = item.note || ''
+				document.getElementById('adminPanel').classList.remove('hidden')
+				switchTab('single')
+				document.getElementById('cancelEdit').classList.remove('hidden')
+				document.getElementById('adminPanel').scrollIntoView({ behavior: 'smooth' })
+			}
+			// 替换原有的 saveSingle 函数
+			// 替换 index.html 中的 saveSingle 函数
+			async function saveSingle() {
+				const id = document.getElementById('editId').value
+				const body = {
+					id,
+					base: document.getElementById('base').value.trim(),
+					past: document.getElementById('past').value.trim(),
+					part: document.getElementById('part').value.trim(),
+					def: document.getElementById('def').value.trim(),
+					note: document.getElementById('note').value.trim(),
+				}
+
+				if (!body.base || !body.past || !body.part) {
+					return showToast('请填写完整 (原形/过去式/过去分词)', 'error')
+				}
+
+				// --- 场景 1: 编辑模式 (有 ID) ---
+				if (id) {
+					await fetch('/api/update', {
+						method: 'POST',
+						headers: { 'Admin-Key': localStorage.getItem('adminKey') },
+						body: JSON.stringify(body),
+					})
+					showToast('修改成功')
+					resetSearch()
+					resetForm()
+					return
+				}
+
+				// --- 场景 2: 新增模式 (无 ID) ---
+				// 2.1 先查重
+				const searchRes = await fetch(`/api/search?q=${encodeURIComponent(body.base)}&mode=exact`)
+				const searchJson = await searchRes.json()
+
+				// 2.2 精确比对：原形 + 过去式 都相同才算重复
+				const duplicate = searchJson.data.find(
+					(item) =>
+						item.base_word.toLowerCase() === body.base.toLowerCase() &&
+						item.past_tense.toLowerCase() === body.past.toLowerCase()
+				)
+
+				// 2.3 辅助函数：执行保存
+				const doAdd = async (mode) => {
+					await fetch('/api/batch_add', {
+						method: 'POST',
+						headers: { 'Admin-Key': localStorage.getItem('adminKey') },
+						body: JSON.stringify({ rows: [body], mode: mode }),
+					})
+					showToast(mode === 'update' ? '已覆盖并保存' : '保存成功')
+					resetSearch()
+					resetForm()
+				}
+
+				// 2.4 如果发现重复 -> 弹出预览框
+				if (duplicate) {
+					// 构建对比表格 HTML
+					const tableHtml = `
+            <div style="margin-bottom:10px; color:var(--text-main)">检测到已存在的单词形式，是否覆盖？</div>
+            <table style="width:100%; border:1px solid var(--border); font-size:0.9rem;">
+                <tr style="background:var(--bg-body); color:var(--text-sub)">
+                    <th style="padding:8px">字段</th>
+                    <th style="padding:8px">当前存在 (Old)</th>
+                    <th style="padding:8px; color:var(--primary)">准备提交 (New)</th>
+                </tr>
+                <tr>
+                    <td style="padding:8px; color:var(--text-sub)">原形</td>
+                    <td style="padding:8px">${duplicate.base_word}</td>
+                    <td style="padding:8px; font-weight:bold">${body.base}</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; color:var(--text-sub)">过去式</td>
+                    <td style="padding:8px">${duplicate.past_tense}</td>
+                    <td style="padding:8px; font-weight:bold">${body.past}</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; color:var(--text-sub)">过去分词</td>
+                    <td style="padding:8px">${duplicate.past_participle}</td>
+                    <td style="padding:8px; color:${
+											duplicate.past_participle !== body.part ? 'var(--primary)' : 'inherit'
+										}">${body.part}</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; color:var(--text-sub)">释义</td>
+                    <td style="padding:8px">${duplicate.definition || '-'}</td>
+                    <td style="padding:8px; color:${
+											(duplicate.definition || '') !== body.def ? 'var(--primary)' : 'inherit'
+										}">${body.def}</td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; color:var(--text-sub)">备注</td>
+                    <td style="padding:8px">${duplicate.note || '-'}</td>
+                    <td style="padding:8px; color:${
+											(duplicate.note || '') !== body.note ? 'var(--primary)' : 'inherit'
+										}">${body.note}</td>
+                </tr>
+            </table>
+            <div style="margin-top:10px; font-size:0.8rem; color:var(--danger)">注意：覆盖操作不可撤销。</div>
+        `
+
+					showConfirmModal(tableHtml, () => doAdd('update'), true)
+					document.getElementById('confirmActionBtn').innerText = '覆盖保存'
+				} else {
+					// 2.5 无重复 -> 直接添加
+					await doAdd('skip')
+				}
+			}
+
+			function resetForm() {
+				document.getElementById('editId').value = ''
+				document.querySelectorAll('#tab-single input').forEach((i) => (i.value = ''))
+				document.getElementById('cancelEdit').classList.add('hidden')
+			}
+
+			function showLogin() {
+				document.getElementById('loginModal').classList.remove('hidden')
+			}
+			// 替换原有的 confirmLogin 函数
+			async function confirmLogin() {
+				const pass = document.getElementById('modalPass').value
+
+				// 1. 禁用按钮防止重复提交
+				const btn = document.querySelector('#loginModal .btn-primary')
+				const originalText = btn.innerText
+				btn.innerText = '验证中...'
+				btn.disabled = true
+
+				try {
+					// 2. 发送请求给后端验证
+					const res = await fetch('/api/verify', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ password: pass }),
+					})
+
+					const data = await res.json()
+
+					// 3. 根据后端返回结果判断
+					if (res.ok && data.success) {
+						localStorage.setItem('adminKey', pass)
+						closeModal('loginModal')
+						toggleAdmin(true)
+						showToast('登录成功')
+						// 清空输入框，防止下次打开还能看到密码
+						document.getElementById('modalPass').value = ''
+					} else {
+						showToast('密码错误', 'error')
+						// 登录失败清除错误的 key（如果有的话）
+						localStorage.removeItem('adminKey')
+					}
+				} catch (e) {
+					console.error(e)
+					showToast('网络请求失败', 'error')
+				} finally {
+					// 4. 恢复按钮状态
+					btn.innerText = originalText
+					btn.disabled = false
+				}
+			}
+			// 新增：登出确认
+			function confirmLogout() {
+				// 复用通用的 confirmModal，样式更统一
+				showConfirmModal('确定要退出登录吗？', () => {
+					localStorage.removeItem('adminKey')
+					toggleAdmin(false)
+					showToast('已退出登录')
+				})
+			}
+
+			function logout() {
+				localStorage.removeItem('adminKey')
+				toggleAdmin(false)
+			}
+			function toggleAdmin(show) {
+				document.getElementById('adminPanel').classList.toggle('hidden', !show)
+				document.getElementById('loginBtn').classList.toggle('hidden', show)
+				document.getElementById('logoutBtn').classList.toggle('hidden', !show)
+				if (document.querySelector('table')) doSearch()
+			}
+			function showToast(msg, type) {
+				const t = document.getElementById('toast')
+				t.innerText = msg
+				t.className = `toast show ${type || ''}`
+				setTimeout(() => (t.className = 'toast'), 2000)
+			}
+		</script>
+	</body>
+</html>

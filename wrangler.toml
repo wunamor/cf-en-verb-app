@@ -1,0 +1,17 @@
+name = "english-verb-worker"
+main = "src/index.js"
+compatibility_date = "2024-11-01" # 建议使用较新的日期
+
+# --- 核心修改：配置静态资源 ---
+[assets]
+directory = "./public"   # 告诉 Worker 你的 HTML 在 public 文件夹里
+binding = "EN_VERB_ASSETS"       # 在代码里可以通过 env.EN_VERB_ASSETS 访问这些文件
+
+# 数据库配置 (保持不变)
+[[d1_databases]]
+binding = "DB"
+database_name = "verb-db"
+database_id = "2b903f68-a865-46c5-934b-66b372ac868a" 
+
+[vars]
+# ADMIN_PASSWORD = "123"
