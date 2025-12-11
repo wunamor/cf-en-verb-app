@@ -9,8 +9,11 @@ export default {
     if (path.startsWith('/api/')) {
       try {
         // GET 请求
-        if (path === '/api/search' && request.method === 'GET') {
-          return await api.search(request, env);
+        if (request.method === 'GET') {
+          switch (path) {
+            case '/api/export': return await api.exportData(request, env);
+            case '/api/search': return await api.search(request, env);
+          }
         }
 
         // POST 请求

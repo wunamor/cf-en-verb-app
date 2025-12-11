@@ -137,3 +137,52 @@ export async function batchDelete(request, env) {
   await env.DB.prepare(`DELETE FROM verbs WHERE id IN (${placeholders})`).bind(...ids).run();
   return Response.json({ success: true });
 }
+
+// 7. 导出数据 (将生成 CSV 的逻辑移到后端)
+export async function exportData(request, env) {
+  const url = new URL(request.url);
+  const q = url.searchParams.get('q') || '';
+  const mode = url.searchParams.get('mode') || 'fuzzy';
+  const delim = url.searchParams.get('delim') || ','; // 获取前端传来的分隔符
+
+  // 1. 复用搜索逻辑查询所有数据 (无 LIMIT 限制)
+  let sql, params;
+
+  if (!q) {
+    sql = `SELECT * FROM verbs ORDER BY base_word ASC`;
+    params = [];
+  } else {
+    if (mode === 'exact') {
+      sql = `SELECT * FROM verbs WHERE lower(base_word) = lower(?) ORDER BY base_word ASC`;
+      params = [q];
+    } else {
+      sql = `SELECT * FROM verbs WHERE base_word LIKE ? OR definition LIKE ? ORDER BY base_word ASC`;
+      const pattern = `%${q}%`;
+      params = [pattern, pattern];
+    }
+  }
+
+  const { results } = await env.DB.prepare(sql).bind(...params).all();
+
+  // 2. 在后端构建 CSV 字符串
+  const rows = results.map(item => {
+    return [
+      item.base_word || '',
+      item.past_tense || '',
+      item.past_participle || '',
+      item.definition || '',
+      item.note || ''
+    ].join(delim);
+  });
+
+  // 3. 添加 BOM 头防止乱码
+  const csvContent = '\uFEFF' + rows.join('\n');
+
+  // 4. 返回文件流
+  return new Response(csvContent, {
+    headers: {
+      'Content-Type': 'text/csv; charset=utf-8',
+      'Content-Disposition': 'attachment; filename="verbs.csv"'
+    }
+  });
+}
