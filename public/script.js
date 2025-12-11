@@ -5,6 +5,7 @@ let totalPages = 1
 let selectedIds = new Set()
 let csvData = []
 
+
 window.onload = () => {
   // 1. 恢复管理员状态
   if (localStorage.getItem('adminKey')) toggleAdmin(true)
@@ -350,7 +351,7 @@ async function executeImport() {
   pFill.style.width = '0%'
   status.innerText = '准备开始...'
 
-  const BATCH = 50
+  const BATCH = 500
   let processedCount = 0
   let hasError = false
 
