@@ -11,427 +11,6 @@
 			rel="icon"
 			href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%233b82f6%22/><path d=%22M28 38 L50 72 L72 38%22 fill=%22none%22 stroke=%22white%22 stroke-width=%2212%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/><circle cx=%2272%22 cy=%2228%22 r=%228%22 fill=%22%23a5f3fc%22/></svg>"
 		/>
-		<style>
-			:root {
-				--bg-body: #0f172a; /* 深蓝黑背景 */
-				--bg-card: #1e293b; /* 卡片背景 */
-				--bg-hover: #334155; /* 悬停高亮 */
-				--text-main: #f8fafc; /* 主文字 */
-				--text-sub: #94a3b8; /* 副文字 */
-				--primary: #3b82f6; /* 亮蓝色 */
-				--primary-hover: #2563eb;
-				--danger: #ef4444; /* 红色 */
-				--border: #334155; /* 边框色 */
-				--input-bg: #0f172a; /* 输入框背景 */
-			}
-
-			body {
-				font-family: 'Segoe UI', system-ui, sans-serif;
-				background: var(--bg-body);
-				color: var(--text-main);
-				padding: 20px;
-				max-width: 1000px;
-				margin: 0 auto;
-				line-height: 1.6;
-			}
-
-			/* --- 核心组件 --- */
-			.card {
-				background: var(--bg-card);
-				border: 1px solid var(--border);
-				border-radius: 10px;
-				padding: 20px;
-				margin-bottom: 20px;
-				box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-			}
-
-			.btn {
-				padding: 8px 16px;
-				border-radius: 6px;
-				border: 1px solid transparent;
-				cursor: pointer;
-				font-size: 0.9rem;
-				transition: 0.2s;
-				display: inline-flex;
-				align-items: center;
-				justify-content: center;
-				font-weight: 500;
-				white-space: nowrap;
-			}
-			.btn-primary {
-				background: var(--primary);
-				color: white;
-			}
-			.btn-primary:hover {
-				background: var(--primary-hover);
-			}
-			.btn-danger {
-				background: rgba(239, 68, 68, 0.15);
-				color: #fca5a5;
-				border: 1px solid var(--danger);
-			}
-			.btn-danger:hover {
-				background: var(--danger);
-				color: white;
-			}
-			.btn-outline {
-				background: transparent;
-				border: 1px solid var(--border);
-				color: var(--text-sub);
-			}
-			.btn-outline:hover {
-				border-color: var(--text-main);
-				color: var(--text-main);
-				background: var(--bg-hover);
-			}
-			.btn-sm {
-				padding: 4px 10px;
-				font-size: 0.8rem;
-				margin-left: 5px;
-			}
-			.btn:disabled {
-				opacity: 0.6;
-				cursor: not-allowed;
-			}
-
-			.input,
-			select {
-				background: var(--input-bg);
-				border: 1px solid var(--border);
-				color: white;
-				padding: 10px;
-				border-radius: 6px;
-				width: 100%;
-				box-sizing: border-box;
-				outline: none;
-				transition: border-color 0.2s;
-			}
-			.input:focus {
-				border-color: var(--primary);
-			}
-			select {
-				cursor: pointer;
-			}
-
-			/* 通用 Flex 布局 (PC默认横向) */
-			.flex {
-				display: flex;
-				gap: 10px;
-				align-items: center;
-				flex-wrap: wrap;
-			}
-			.hidden {
-				display: none !important;
-			}
-			.text-primary {
-				color: var(--primary);
-				font-weight: 600;
-			}
-
-			/* --- 顶部与搜索 --- */
-			/* 核心修复：justify-content: space-between 确保左右对齐 */
-			.header {
-				display: flex;
-				justify-content: space-between;
-				margin-bottom: 20px;
-				align-items: center;
-			}
-			.search-area {
-				display: flex;
-				gap: 10px;
-				width: 100%;
-			}
-
-			/* --- 表格样式 --- */
-			table {
-				width: 100%;
-				border-collapse: collapse;
-				margin-top: 5px;
-			}
-			th {
-				text-align: left;
-				background: #0f172a;
-				padding: 12px;
-				color: var(--text-sub);
-				font-size: 0.85rem;
-				border-bottom: 2px solid var(--border);
-				font-weight: 600;
-			}
-			td {
-				padding: 14px 12px;
-				border-bottom: 1px solid var(--border);
-				font-size: 0.95rem;
-				color: #e2e8f0;
-			}
-			tr:hover td {
-				background: var(--bg-hover);
-			}
-
-			input[type='checkbox'] {
-				accent-color: var(--primary);
-				width: 16px;
-				height: 16px;
-				cursor: pointer;
-			}
-
-			/* --- 分页栏 (核心修复：默认横向) --- */
-			.footer {
-				display: flex;
-				justify-content: space-between; /* 左右分布 */
-				align-items: center;
-				margin-top: 20px;
-				padding-top: 15px;
-				border-top: 1px solid var(--border);
-			}
-			.page-ctrl {
-				display: flex;
-				gap: 8px;
-				align-items: center;
-			}
-
-			.page-btn {
-				min-width: 32px;
-				height: 32px;
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				border: 1px solid var(--border);
-				border-radius: 4px;
-				cursor: pointer;
-				color: var(--text-sub);
-				background: var(--bg-body);
-				user-select: none;
-				font-size: 0.9rem;
-				transition: all 0.2s;
-			}
-			.page-btn:hover:not(.active) {
-				border-color: var(--text-main);
-				color: var(--text-main);
-			}
-
-			/* 核心修复：激活状态样式必须足够强 */
-			.page-btn.active {
-				background: var(--primary) !important;
-				border-color: var(--primary) !important;
-				color: white !important;
-				font-weight: bold;
-			}
-			.page-input {
-				width: 45px;
-				text-align: center;
-				padding: 4px;
-				height: 32px;
-				font-size: 0.9rem;
-			}
-
-			/* --- 导入面板 --- */
-			.import-box {
-				background: #0f172a;
-				padding: 15px;
-				border-radius: 8px;
-				border: 1px solid var(--border);
-			}
-			/* PC端导入行默认横向 */
-			.import-row {
-				display: flex;
-				gap: 15px;
-				margin-bottom: 15px;
-			}
-			.import-col {
-				flex: 1;
-				min-width: 200px;
-			}
-
-			.mapping-row {
-				display: grid;
-				grid-template-columns: 100px 1fr;
-				gap: 15px;
-				align-items: center;
-				margin-bottom: 10px;
-			}
-			.mapping-label {
-				text-align: right;
-				color: var(--text-sub);
-				font-size: 0.9rem;
-			}
-
-			/* --- 弹窗 (Modal) --- */
-			.modal-mask {
-				position: fixed;
-				inset: 0;
-				background: rgba(0, 0, 0, 0.6);
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				z-index: 999;
-				backdrop-filter: blur(3px);
-			}
-			.modal {
-				background: var(--bg-card);
-				width: 450px;
-				padding: 25px;
-				border-radius: 12px;
-				border: 1px solid var(--border);
-				box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-				animation: popIn 0.2s ease-out;
-			}
-			@keyframes popIn {
-				from {
-					opacity: 0;
-					transform: scale(0.95);
-				}
-				to {
-					opacity: 1;
-					transform: scale(1);
-				}
-			}
-
-			.modal-title {
-				margin: 0 0 10px 0;
-				font-size: 1.1rem;
-				color: var(--text-main);
-			}
-			.modal-body {
-				color: var(--text-sub);
-				margin-bottom: 25px;
-				font-size: 0.95rem;
-				line-height: 1.6;
-			}
-			.modal-btns {
-				display: flex;
-				justify-content: flex-end;
-				gap: 10px;
-			}
-
-			/* --- Toast --- */
-			.toast {
-				position: fixed;
-				top: 20px;
-				right: 20px;
-				background: #10b981;
-				color: white;
-				padding: 12px 24px;
-				border-radius: 8px;
-				transform: translateY(-100px);
-				transition: 0.3s;
-				z-index: 1000;
-				box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-			}
-			.toast.show {
-				transform: translateY(0);
-			}
-			.toast.error {
-				background: var(--danger);
-			}
-
-			/* 进度条 */
-			.progress-track {
-				background: var(--bg-body);
-				border: 1px solid var(--border);
-				height: 10px;
-				border-radius: 5px;
-				overflow: hidden;
-				margin: 10px 0;
-			}
-			.progress-fill {
-				background: var(--primary);
-				height: 100%;
-				width: 0%;
-				transition: width 0.3s;
-			}
-
-			/* =========================================
-       移动端适配 (Max-Width: 768px)
-       所有的竖排、堆叠逻辑只在这里生效
-       ========================================= */
-			@media (max-width: 768px) {
-				body {
-					padding: 10px;
-				}
-
-				/* 1. 顶部 Header 保持左右分布 (核心修改) */
-				/* 移除 flex-direction: column，继承 PC 的 row */
-				.header {
-					gap: 10px;
-					/* 防止小屏幕文字拥挤，适当缩小标题 */
-				}
-				.header h2 {
-					font-size: 1.2rem;
-				}
-				.header h2 span {
-					display: none;
-				} /* 手机上隐藏 "Pro" 标签以节省空间 */
-
-				/* 2. 搜索框竖排 */
-				.search-area {
-					flex-direction: column;
-				}
-				.search-area button {
-					width: 100%;
-				}
-
-				/* 3. 批量导入竖排 */
-				.import-row {
-					flex-direction: column;
-					gap: 10px;
-				}
-
-				/* 4. 分页栏竖排转居中 */
-				.footer {
-					flex-direction: column;
-					gap: 15px;
-				}
-				.page-ctrl {
-					flex-wrap: wrap;
-					justify-content: center;
-					width: 100%;
-				}
-
-				/* 5. 表格变卡片 */
-				thead {
-					display: none;
-				}
-				tr {
-					display: block;
-					background: var(--bg-card);
-					border: 1px solid var(--border);
-					margin-bottom: 15px;
-					border-radius: 8px;
-					padding: 10px;
-				}
-				td {
-					display: flex;
-					justify-content: space-between;
-					align-items: center;
-					padding: 8px 0;
-					border-bottom: 1px solid #33415540;
-					text-align: right;
-				}
-				td:last-child {
-					border-bottom: none;
-				}
-				td::before {
-					content: attr(data-label);
-					color: var(--text-sub);
-					font-size: 0.85rem;
-					font-weight: 600;
-					text-align: left;
-					margin-right: 15px;
-				}
-
-				/* 6. 弹窗适配 */
-				.modal {
-					width: 90%;
-					padding: 20px;
-				}
-				.modal-btns {
-					flex-direction: column;
-				}
-				.modal-btns button {
-					width: 100%;
-				}
-			}
-		</style>
 	</head>
 	<body>
 		<div class="header">
@@ -491,7 +70,7 @@
 					href="https://github.com/wunamor/cf-en-irregular-verb-conjugation"
 					target="_blank"
 					class="btn btn-outline"
-					style="padding: 10px 10px; border-color: var(--border); border: none;"
+					style="padding: 10px 10px; border-color: var(--border); border: none"
 					title="GitHub Repository"
 				>
 					<svg
@@ -529,7 +108,7 @@
 					id="searchInput"
 					class="input"
 					style="flex: 1"
-					placeholder="输入单词 (支持模糊搜索)..."
+					placeholder="搜索原形、释义或备注..."
 					onkeydown="if(event.key==='Enter') resetSearch()"
 				/>
 				<button
@@ -815,14 +394,50 @@
 			class="modal-mask hidden"
 		>
 			<div class="modal">
-				<h3 class="modal-title">🔐 管理员验证</h3>
+				<h3 class="modal-title">🔐 管理员登录</h3>
 				<div class="modal-body">
 					<input
 						type="password"
 						id="modalPass"
 						class="input"
-						placeholder="请输入管理员密码"
-						onkeydown="if(event.key==='Enter') confirmLogin()"
+						placeholder="请输入密码"
+						style="margin-bottom: 15px"
+					/>
+
+					<p style="margin-bottom: 5px; color: var(--text-sub); font-size: 0.9rem">验证码（点击图片刷新）：</p>
+					<div
+						class="flex"
+						style="justify-content: space-between; align-items: center; margin-bottom: 15px"
+					>
+						<div
+							id="loginCaptchaImage"
+							onclick="refreshLoginCaptcha()"
+							title="点击刷新"
+							style="
+								width: 120px;
+								height: 40px;
+								display: flex;
+								align-items: center;
+								justify-content: center;
+								cursor: pointer;
+								background: #f1f5f9;
+								border-radius: 4px;
+							"
+						>
+							<span style="font-size: 0.8rem; color: #64748b">Loading...</span>
+						</div>
+						<input
+							type="text"
+							id="loginCaptchaInput"
+							class="input"
+							style="width: 80px; text-align: center"
+							placeholder="?"
+							onkeydown="if(event.key==='Enter') confirmLogin()"
+						/>
+					</div>
+					<input
+						type="hidden"
+						id="loginCaptchaToken"
 					/>
 				</div>
 				<div class="modal-btns">
@@ -836,7 +451,7 @@
 						class="btn btn-primary"
 						onclick="confirmLogin()"
 					>
-						确定
+						登录
 					</button>
 				</div>
 			</div>
@@ -891,7 +506,8 @@
 				<h3 class="modal-title">📤 导出数据</h3>
 				<div class="modal-body">
 					<label style="display: block; margin-bottom: 10px; color: var(--text-sub)">选择分隔符：</label>
-					<div class="flex">
+
+					<div class="export-input-group">
 						<select
 							id="exportDelimSelect"
 							class="input"
@@ -906,7 +522,6 @@
 							id="exportCustomDelim"
 							class="input hidden"
 							placeholder="输入符号"
-							style="width: 80px"
 						/>
 					</div>
 					<p style="margin-top: 15px; font-size: 0.85rem; color: var(--text-sub)">
@@ -932,6 +547,515 @@
 			</div>
 		</div>
 
+		<div
+			id="captchaModal"
+			class="modal-mask hidden"
+			style="z-index: 2000"
+		>
+			<div
+				class="modal"
+				style="max-width: 320px"
+			>
+				<h3 class="modal-title">🤖 人机验证</h3>
+				<div class="modal-body">
+					<p style="margin-bottom: 10px; color: var(--text-sub)">请输入计算结果（点击图片刷新）：</p>
+
+					<div
+						class="flex"
+						style="justify-content: space-between; align-items: center; margin-bottom: 15px"
+					>
+						<div
+							id="captchaImage"
+							onclick="openCaptchaModal()"
+							title="看不清？点击刷新"
+							style="
+								width: 120px;
+								height: 40px;
+								display: flex;
+								align-items: center;
+								justify-content: center;
+								cursor: pointer;
+								background: #f1f5f9;
+								border-radius: 4px;
+							"
+						>
+							<span style="font-size: 0.8rem; color: #64748b">Loading...</span>
+						</div>
+
+						<input
+							type="text"
+							id="captchaInput"
+							class="input"
+							style="width: 80px; text-align: center"
+							placeholder="?"
+							onkeydown="if(event.key==='Enter') submitCaptchaExport()"
+						/>
+					</div>
+
+					<input
+						type="hidden"
+						id="captchaToken"
+					/>
+
+					<div class="modal-btns">
+						<button
+							class="btn btn-outline"
+							onclick="closeModal('captchaModal')"
+						>
+							取消
+						</button>
+						<button
+							id="btnSubmitCaptcha"
+							class="btn btn-primary"
+							onclick="submitCaptchaExport()"
+						>
+							确认
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
 		<script src="script.js"></script>
 	</body>
 </html>
+
+<style>
+	:root {
+		--bg-body: #0f172a; /* 深蓝黑背景 */
+		--bg-card: #1e293b; /* 卡片背景 */
+		--bg-hover: #334155; /* 悬停高亮 */
+		--text-main: #f8fafc; /* 主文字 */
+		--text-sub: #94a3b8; /* 副文字 */
+		--primary: #3b82f6; /* 亮蓝色 */
+		--primary-hover: #2563eb;
+		--danger: #ef4444; /* 红色 */
+		--border: #334155; /* 边框色 */
+		--input-bg: #0f172a; /* 输入框背景 */
+	}
+
+	body {
+		font-family: 'Segoe UI', system-ui, sans-serif;
+		background: var(--bg-body);
+		color: var(--text-main);
+		padding: 20px;
+		max-width: 1000px;
+		margin: 0 auto;
+		line-height: 1.6;
+	}
+
+	/* --- 核心组件 --- */
+	.card {
+		background: var(--bg-card);
+		border: 1px solid var(--border);
+		border-radius: 10px;
+		padding: 20px;
+		margin-bottom: 20px;
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+	}
+
+	.btn {
+		padding: 8px 16px;
+		border-radius: 6px;
+		border: 1px solid transparent;
+		cursor: pointer;
+		font-size: 0.9rem;
+		transition: 0.2s;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: 500;
+		white-space: nowrap;
+	}
+	.btn-primary {
+		background: var(--primary);
+		color: white;
+	}
+	.btn-primary:hover {
+		background: var(--primary-hover);
+	}
+	.btn-danger {
+		background: rgba(239, 68, 68, 0.15);
+		color: #fca5a5;
+		border: 1px solid var(--danger);
+	}
+	.btn-danger:hover {
+		background: var(--danger);
+		color: white;
+	}
+	.btn-outline {
+		background: transparent;
+		border: 1px solid var(--border);
+		color: var(--text-sub);
+	}
+	.btn-outline:hover {
+		border-color: var(--text-main);
+		color: var(--text-main);
+		background: var(--bg-hover);
+	}
+	.btn-sm {
+		padding: 4px 10px;
+		font-size: 0.8rem;
+		margin-left: 5px;
+	}
+	.btn:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+
+	.input,
+	select {
+		background: var(--input-bg);
+		border: 1px solid var(--border);
+		color: white;
+		padding: 10px;
+		border-radius: 6px;
+		width: 100%;
+		box-sizing: border-box;
+		outline: none;
+		transition: border-color 0.2s;
+	}
+	.input:focus {
+		border-color: var(--primary);
+	}
+	select {
+		cursor: pointer;
+	}
+
+	/* 通用 Flex 布局 (PC默认横向) */
+	.flex {
+		display: flex;
+		gap: 10px;
+		align-items: center;
+		flex-wrap: wrap;
+	}
+	.hidden {
+		display: none !important;
+	}
+	.text-primary {
+		color: var(--primary);
+		font-weight: 600;
+	}
+
+	/* --- 顶部与搜索 --- */
+	/* 核心修复：justify-content: space-between 确保左右对齐 */
+	.header {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 20px;
+		align-items: center;
+	}
+	.search-area {
+		display: flex;
+		gap: 10px;
+		width: 100%;
+	}
+
+	/* --- 表格样式 --- */
+	table {
+		width: 100%;
+		border-collapse: collapse;
+		margin-top: 5px;
+	}
+	th {
+		text-align: left;
+		background: #0f172a;
+		padding: 12px;
+		color: var(--text-sub);
+		font-size: 0.85rem;
+		border-bottom: 2px solid var(--border);
+		font-weight: 600;
+	}
+	td {
+		padding: 14px 12px;
+		border-bottom: 1px solid var(--border);
+		font-size: 0.95rem;
+		color: #e2e8f0;
+	}
+	tr:hover td {
+		background: var(--bg-hover);
+	}
+
+	input[type='checkbox'] {
+		accent-color: var(--primary);
+		width: 16px;
+		height: 16px;
+		cursor: pointer;
+	}
+
+	/* --- 分页栏 (核心修复：默认横向) --- */
+	.footer {
+		display: flex;
+		justify-content: space-between; /* 左右分布 */
+		align-items: center;
+		margin-top: 20px;
+		padding-top: 15px;
+		border-top: 1px solid var(--border);
+	}
+	.page-ctrl {
+		display: flex;
+		gap: 8px;
+		align-items: center;
+	}
+
+	.page-btn {
+		min-width: 32px;
+		height: 32px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		border: 1px solid var(--border);
+		border-radius: 4px;
+		cursor: pointer;
+		color: var(--text-sub);
+		background: var(--bg-body);
+		user-select: none;
+		font-size: 0.9rem;
+		transition: all 0.2s;
+	}
+	.page-btn:hover:not(.active) {
+		border-color: var(--text-main);
+		color: var(--text-main);
+	}
+
+	/* 核心修复：激活状态样式必须足够强 */
+	.page-btn.active {
+		background: var(--primary) !important;
+		border-color: var(--primary) !important;
+		color: white !important;
+		font-weight: bold;
+	}
+	.page-input {
+		width: 45px;
+		text-align: center;
+		padding: 4px;
+		height: 32px;
+		font-size: 0.9rem;
+	}
+
+	/* --- 导入面板 --- */
+	.import-box {
+		background: #0f172a;
+		padding: 15px;
+		border-radius: 8px;
+		border: 1px solid var(--border);
+	}
+	/* PC端导入行默认横向 */
+	.import-row {
+		display: flex;
+		gap: 15px;
+		margin-bottom: 15px;
+	}
+	.import-col {
+		flex: 1;
+		min-width: 200px;
+	}
+
+	.mapping-row {
+		display: grid;
+		grid-template-columns: 100px 1fr;
+		gap: 15px;
+		align-items: center;
+		margin-bottom: 10px;
+	}
+	.mapping-label {
+		text-align: right;
+		color: var(--text-sub);
+		font-size: 0.9rem;
+	}
+
+	/* --- 弹窗 (Modal) --- */
+	.modal-mask {
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.6);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		z-index: 999;
+		backdrop-filter: blur(3px);
+	}
+	.modal {
+		background: var(--bg-card);
+		width: 450px;
+		padding: 25px;
+		border-radius: 12px;
+		border: 1px solid var(--border);
+		box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+		animation: popIn 0.2s ease-out;
+	}
+	@keyframes popIn {
+		from {
+			opacity: 0;
+			transform: scale(0.95);
+		}
+		to {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	.modal-title {
+		margin: 0 0 10px 0;
+		font-size: 1.1rem;
+		color: var(--text-main);
+	}
+	.modal-body {
+		color: var(--text-sub);
+		margin-bottom: 25px;
+		font-size: 0.95rem;
+		line-height: 1.6;
+	}
+	.modal-btns {
+		display: flex;
+		justify-content: flex-end;
+		gap: 10px;
+	}
+
+	/* --- Toast --- */
+	.toast {
+		position: fixed;
+		top: 20px;
+		right: 20px;
+		background: #10b981;
+		color: white;
+		padding: 12px 24px;
+		border-radius: 8px;
+		transform: translateY(-100px);
+		transition: 0.3s;
+		z-index: 1000;
+		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+	}
+	.toast.show {
+		transform: translateY(0);
+	}
+	.toast.error {
+		background: var(--danger);
+	}
+
+	/* 进度条 */
+	.progress-track {
+		background: var(--bg-body);
+		border: 1px solid var(--border);
+		height: 10px;
+		border-radius: 5px;
+		overflow: hidden;
+		margin: 10px 0;
+	}
+	.progress-fill {
+		background: var(--primary);
+		height: 100%;
+		width: 0%;
+		transition: width 0.3s;
+	}
+
+	/* =========================================
+       移动端适配 (Max-Width: 768px)
+       所有的竖排、堆叠逻辑只在这里生效
+       ========================================= */
+	@media (max-width: 768px) {
+		body {
+			padding: 10px;
+		}
+
+		/* 1. 顶部 Header 保持左右分布 (核心修改) */
+		/* 移除 flex-direction: column，继承 PC 的 row */
+		.header {
+			gap: 10px;
+			/* 防止小屏幕文字拥挤，适当缩小标题 */
+		}
+		.header h2 {
+			font-size: 1.2rem;
+		}
+		.header h2 span {
+			display: none;
+		} /* 手机上隐藏 "Pro" 标签以节省空间 */
+
+		/* 2. 搜索框竖排 */
+		.search-area {
+			flex-direction: column;
+		}
+		.search-area button {
+			width: 100%;
+		}
+
+		/* 3. 批量导入竖排 */
+		.import-row {
+			flex-direction: column;
+			gap: 10px;
+		}
+
+		/* 4. 分页栏竖排转居中 */
+		.footer {
+			flex-direction: column;
+			gap: 15px;
+		}
+		.page-ctrl {
+			flex-wrap: wrap;
+			justify-content: center;
+			width: 100%;
+		}
+
+		/* 5. 表格变卡片 */
+		thead {
+			display: none;
+		}
+		tr {
+			display: block;
+			background: var(--bg-card);
+			border: 1px solid var(--border);
+			margin-bottom: 15px;
+			border-radius: 8px;
+			padding: 10px;
+		}
+		td {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 8px 0;
+			border-bottom: 1px solid #33415540;
+			text-align: right;
+		}
+		td:last-child {
+			border-bottom: none;
+		}
+		td::before {
+			content: attr(data-label);
+			color: var(--text-sub);
+			font-size: 0.85rem;
+			font-weight: 600;
+			text-align: left;
+			margin-right: 15px;
+		}
+
+		/* 6. 弹窗适配 */
+		.modal {
+			width: 90%;
+			padding: 20px;
+		}
+		.modal-btns {
+			flex-direction: column;
+		}
+		.modal-btns button {
+			width: 100%;
+		}
+	}
+	/* 修复 2：将 Toast 层级提至最高，超过验证码弹窗的 2000 */
+	.toast {
+		z-index: 9999 !important;
+	}
+
+	/* 修复 1：导出弹窗的自定义输入框样式优化 */
+	/* 确保下拉框和输入框在一行显示 */
+	.export-input-group {
+		display: flex;
+		gap: 10px;
+		align-items: center;
+		width: 100%;
+	}
+	.export-input-group select {
+		flex: 1; /* 默认占满，有输入框时自动缩小 */
+	}
+	.export-input-group input {
+		flex: 1; /* 输入框出现时，平分宽度 */
+	}
+</style>

@@ -23,3 +23,10 @@ PC_PAGE_SIZE = 10                   # PC 默认显示条数
 PC_OPTIONS = [5, 10, 20, 50, 100]   # PC 可选条数
 BATCH_SIZE = 500                    # 批量处理数据大小
 #DEBOUNCE_MS = 300                   # 搜索请求的防抖延迟 (毫秒)
+
+# 搜索限制：一次最多查 100 条
+MAX_SEARCH_LIMIT = 100            
+# 验证码限制：每个 IP 最多错 3 次
+MAX_CAPTCHA_ATTEMPTS = 5          
+# 冷却时间：封禁 10 分钟 (10 * 60 * 1000)
+CAPTCHA_COOLDOWN_MS = "600000"

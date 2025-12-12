@@ -548,10 +548,37 @@ function resetForm() {
 
 function showLogin() {
   document.getElementById('loginModal').classList.remove('hidden');
+  document.getElementById('modalPass').value = '';
+  document.getElementById('loginCaptchaInput').value = '';
+  // 打开弹窗时立即获取验证码
+  refreshLoginCaptcha();
+}
+async function refreshLoginCaptcha() {
+  const imgContainer = document.getElementById('loginCaptchaImage');
+  if (!imgContainer) return;
+  imgContainer.innerHTML = '<span style="font-size:0.8rem; color:#94a3b8">...</span>';
+  try {
+    const res = await fetch('/api/captcha');
+    const data = await res.json();
+    if (!res.ok) {
+      if (res.status === 429) showToast(data.error, 'error');
+      return;
+    }
+    imgContainer.innerHTML = data.svg;
+    document.getElementById('loginCaptchaToken').value = data.token;
+  } catch (e) {
+    imgContainer.innerText = 'Err';
+  }
 }
 
 async function confirmLogin() {
   const pass = document.getElementById('modalPass').value;
+  const ans = document.getElementById('loginCaptchaInput').value.trim();
+  const token = document.getElementById('loginCaptchaToken').value;
+
+  if (!pass) return showToast('请输入密码', 'error');
+  if (!ans) return showToast('请输入验证码', 'error');
+
   const btn = document.querySelector('#loginModal .btn-primary');
   const originalText = btn.innerText;
   btn.innerText = '验证中...';
@@ -561,7 +588,7 @@ async function confirmLogin() {
     const res = await fetch('/api/verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: pass }),
+      body: JSON.stringify({ password: pass, captcha_ans: ans, captcha_token: token }),
     });
 
     const data = await res.json();
@@ -571,13 +598,12 @@ async function confirmLogin() {
       closeModal('loginModal');
       toggleAdmin(true);
       showToast('登录成功');
-      document.getElementById('modalPass').value = '';
     } else {
-      showToast('密码错误', 'error');
-      localStorage.removeItem('adminKey');
+      showToast(data.error || '密码或验证码错误', 'error');
+      refreshLoginCaptcha(); // 失败刷新
+      document.getElementById('loginCaptchaInput').value = '';
     }
   } catch (e) {
-    console.error(e);
     showToast('网络请求失败', 'error');
   } finally {
     btn.innerText = originalText;
@@ -629,55 +655,158 @@ function toggleExportCustom() {
   }
 }
 
+// public/script.js
+
+// 暂存导出的参数，供验证码验证通过后使用
+let pendingExportParams = null;
+
 async function executeExport() {
-  const btn = document.getElementById('btnExecuteExport');
-  const originalText = btn.innerText;
-  btn.disabled = true;
-  btn.innerText = '正在下载...';
+  // 1. 获取导出参数
+  const q = document.getElementById('searchInput').value.trim();
+  const mode = document.querySelector('input[name="mode"]:checked').value;
+  const selectVal = document.getElementById('exportDelimSelect').value;
+  let delim = selectVal;
+  if (selectVal === 'custom') {
+    delim = document.getElementById('exportCustomDelim').value;
+  }
+  if (!delim) {
+    showToast('请输入分隔符', 'error');
+    return;
+  }
+
+  // 保存参数，准备后续使用
+  pendingExportParams = { q, mode, delim };
+
+  // 2. 检查登录状态
+  const adminKey = localStorage.getItem('adminKey');
+
+  if (adminKey) {
+    // A. 如果已登录：直接导出 (带上 adminKey)
+    await doDownloadExport({ ...pendingExportParams, adminKey });
+    closeModal('exportModal');
+  } else {
+    // B. 如果未登录：弹出验证码
+    openCaptchaModal();
+  }
+}
+
+async function openCaptchaModal() {
+  // 获取容器
+  const imgContainer = document.getElementById('captchaImage');
+  const inputEl = document.getElementById('captchaInput');
+  const modal = document.getElementById('captchaModal');
+
+  // 如果 HTML 没更新，这里会获取不到 imgContainer，导致后续报错
+  if (!imgContainer) {
+    console.error("找不到 id='captchaImage'，请检查 index.html 是否已更新！");
+    return;
+  }
+
+  modal.classList.remove('hidden');
+  inputEl.value = '';
+  // 设置加载状态
+  imgContainer.innerHTML = '<span style="font-size:0.8rem; color:#94a3b8">...</span>';
 
   try {
-    const q = document.getElementById('searchInput').value.trim();
-    const mode = document.querySelector('input[name="mode"]:checked').value;
+    const res = await fetch('/api/captcha');
+    const data = await res.json();
 
-    const selectVal = document.getElementById('exportDelimSelect').value;
-    let delim = selectVal;
-    if (selectVal === 'custom') {
-      delim = document.getElementById('exportCustomDelim').value;
+    if (!res.ok) {
+      if (res.status === 429) {
+        closeModal('captchaModal');
+        showToast(data.error || '验证过于频繁', 'error');
+        return;
+      }
+      throw new Error('Fetch failed');
     }
-    if (!delim) {
-      showToast('请输入分隔符', 'error');
-      return;
-    }
 
-    const res = await fetch(`/api/export?q=${encodeURIComponent(q)}&mode=${mode}&delim=${encodeURIComponent(delim)}`);
+    // --- 核心修复：这里将 SVG 代码插入容器 ---
+    // 后端返回的是 { svg: "<svg>...</svg>", token: "..." }
+    imgContainer.innerHTML = data.svg;
 
-    if (!res.ok) throw new Error('导出失败');
-
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-
-    const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const ext = selectVal === '	' ? 'txt' : 'csv';
-    const fileNamePrefix = q ? `verbs_search_${q}` : `verbs_all`;
-
-    link.setAttribute('href', url);
-    link.setAttribute('download', `${fileNamePrefix}_${date}.${ext}`);
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    setTimeout(() => URL.revokeObjectURL(url), 100);
-
-    showToast('导出成功');
-    closeModal('exportModal');
+    // 保存 token
+    document.getElementById('captchaToken').value = data.token;
+    inputEl.focus();
 
   } catch (e) {
+    console.error("验证码加载失败:", e);
+    imgContainer.innerHTML = '<span style="color:red; font-size:0.8rem">Error</span>';
+    showToast('验证码获取失败', 'error');
+  }
+}
+
+// 提交验证码并执行下载
+async function submitCaptchaExport() {
+  const ans = document.getElementById('captchaInput').value.trim();
+  const token = document.getElementById('captchaToken').value;
+
+  if (!ans) return inputEl.focus();
+
+  const btn = document.getElementById('btnSubmitCaptcha');
+  const originalText = btn.innerText;
+  btn.disabled = true;
+  btn.innerText = '验证中...';
+
+  // 尝试执行下载，带上验证码参数
+  try {
+    await doDownloadExport({
+      ...pendingExportParams,
+      captcha_ans: ans,
+      captcha_token: token
+    });
+
+    // 如果下载函数没有抛出错误，说明成功
+    closeModal('captchaModal');
+    closeModal('exportModal'); // 同时也关闭导出设置窗
+  } catch (e) {
     console.error(e);
-    showToast('导出失败，请重试', 'error');
+    // 如果是 403 错误，通常是验证码错了
+    showToast('验证失败，请检查答案', 'error');
+    // 刷新验证码
+    openCaptchaModal();
   } finally {
     btn.disabled = false;
     btn.innerText = originalText;
   }
+}
+
+// 真正执行 fetch 下载的逻辑
+async function doDownloadExport(params) {
+  const { q, mode, delim, adminKey, captcha_ans, captcha_token } = params;
+
+  // 构建 URL 参数
+  let url = `/api/export?q=${encodeURIComponent(q)}&mode=${mode}&delim=${encodeURIComponent(delim)}`;
+
+  if (adminKey) {
+    url += `&adminKey=${encodeURIComponent(adminKey)}`;
+  } else if (captcha_ans && captcha_token) {
+    url += `&captcha_ans=${encodeURIComponent(captcha_ans)}&captcha_token=${encodeURIComponent(captcha_token)}`;
+  }
+
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    // 如果后端返回非 200，抛出错误供调用者处理
+    if (res.status === 403) throw new Error('Auth Failed');
+    throw new Error('Export Failed');
+  }
+
+  // 处理文件下载
+  const blob = await res.blob();
+  const blobUrl = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+
+  const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const ext = params.delim === '	' ? 'txt' : 'csv';
+  const fileNamePrefix = q ? `verbs_search_${q}` : `verbs_all`;
+
+  link.setAttribute('href', blobUrl);
+  link.setAttribute('download', `${fileNamePrefix}_${date}.${ext}`);
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+  showToast('导出成功');
 }
